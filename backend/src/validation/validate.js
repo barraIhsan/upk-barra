@@ -1,17 +1,12 @@
 import { ResponseError } from "../errors/responseError.js";
 
-export const validate = (schema, data) => {
-  const validation = schema.safeParse(data);
+export default function validate(schema, req) {
+  const result = schema.safeParse(req);
 
-  if (!validation.success) {
-    const errors = validation.error.errors.map((err) => ({
-      field: err.path.join("."),
-      message: err.message,
-    }));
-    throw new ResponseError(400, `Validation failed: ${JSON.stringify(errors)}`);
+  if (!result.success) {
+    const message = result.error.issues[0].message;
+    throw new ResponseError(400, message);
   }
 
-  return validation.data;
-};
-
-export default validate;
+  return result.data;
+}
